@@ -21,6 +21,6 @@ const emit = defineEmits<{
                 X
             </vButton>
         </div>
-        <slot />
+        <slot name="header"></slot>
     </VueFinalModal>
 </template>

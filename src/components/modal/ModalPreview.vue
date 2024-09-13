@@ -9,7 +9,7 @@ const { open } = useModal({
         title: 'Заполните заявку, чтобы стать резидентом',
     },
     slots: {
-        default: '<p>The content of the modal</p>',
+        header: '<p>The content of the modal</p>',
     },
 })
 </script>
