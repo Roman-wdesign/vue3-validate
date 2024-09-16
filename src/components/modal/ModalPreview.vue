@@ -9,7 +9,8 @@ const { open } = useModal({
         title: 'Заполните заявку, чтобы стать резидентом',
     },
     slots: {
-        header: '<p>The content of the modal</p>',
+        org: '<p class="text-gray-900">Наименование организации / ИП</p>',
+        header: '<p class="text-gray-900">Контактный телефон</p>',
     },
 })
 </script>
