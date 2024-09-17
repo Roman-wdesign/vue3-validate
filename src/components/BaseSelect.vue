@@ -1,44 +1,46 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed } from 'vue'
 
-const props = defineProps({
-    options: {
-        type: Array,
-        required: true,
-    },
-    modelValue: {
-        type: Array,
-        default: () => [],
-    },
-});
 
-const emit = defineEmits(['update:modelValue']);
+interface DropdownOption {
+    value: string
+    text: string
+}
 
-const isOpen = ref(false); // Переменная для открытия/закрытия дропдауна
+const props = defineProps<{
+    options: DropdownOption[]
+    modelValue: string[]
+}>()
+
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: string[]): void
+}>()
+
+const isOpen = ref(false) // Переменная для открытия/закрытия дропдауна
 
 // Функция для переключения состояния дропдауна
 const toggleDropdown = () => {
-    isOpen.value = !isOpen.value;
-};
+    isOpen.value = !isOpen.value
+}
 
 // Логика для обновления выбранных элементов при клике на чекбокс
 const toggleSelection = (optionValue: string) => {
-    const currentValue = [...props.modelValue];
-    const index = currentValue.indexOf(optionValue);
+    const currentValue = [...props.modelValue]
+    const index = currentValue.indexOf(optionValue)
 
     if (index === -1) {
-        currentValue.push(optionValue); // Добавляем выбранный элемент
+        currentValue.push(optionValue) // Добавляем выбранный элемент
     } else {
-        currentValue.splice(index, 1); // Удаляем, если элемент уже выбран
+        currentValue.splice(index, 1) // Удаляем, если элемент уже выбран
     }
 
-    emit('update:modelValue', currentValue); // Обновляем модель данных
-};
+    emit('update:modelValue', currentValue) // Обновляем модель данных
+}
 
 // Отображение выбранных элементов
 const selectedText = computed(() => {
-    return props.modelValue.length ? props.modelValue.join(', ') : 'Выберите тип помещения';
-});
+    return props.modelValue.length ? props.modelValue.join(', ') : 'Выберите тип помещения'
+})
 </script>
 
 <template>

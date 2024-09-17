@@ -5,16 +5,16 @@ const props = defineProps({
         type: Object,
         required: true
     }
-});
+})
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue'])
 
-const localMin = ref(props.modelValue.min);
-const localMax = ref(props.modelValue.max);
+const localMin = ref(props.modelValue.min)
+const localMax = ref(props.modelValue.max)
 
 watch([localMin, localMax], () => {
-    emit('update:modelValue', { min: localMin.value, max: localMax.value });
-});
+    emit('update:modelValue', { min: localMin.value, max: localMax.value })
+})
 </script>
 
 <template>
