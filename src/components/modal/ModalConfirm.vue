@@ -1,6 +1,41 @@
 <script setup lang="ts">
 import { VueFinalModal } from 'vue-final-modal'
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+
 import vButton from '@/components/VButton.vue'
+
+
+import BaseSelect from '@/components/BaseSelect.vue'
+
+const roomTypeOptions = [
+    { value: 'склады', text: 'Склады' },
+    { value: 'офисные', text: 'Офисные' },
+    { value: 'производственные', text: 'Производственные' },
+]
+
+// Схема валидации
+const validationSchema = yup.object({
+    roomType: yup.array().required('Необходимо выбрать хотя бы один тип помещения'),
+
+});
+
+
+const { handleSubmit, resetForm, errors, meta, values } = useForm({
+    validationSchema,
+    initialValues: {
+        roomType: [],
+    },
+});
+
+// Поля с валидацией
+const { value: roomType, errorMessage: roomTypeError, meta: roomTypeMeta } = useField('roomType')
+
+
+
+
+
+
 defineProps<{
     title?: string
 }>()
@@ -34,10 +69,12 @@ const emit = defineEmits<{
                     placeholder="Контактный телефон" required />
             </div>
             <div class="mb-10">
-
-                <input type="text" id="confirm_password"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="•••••••••" required />
+                <div
+                    class="dropdown bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <label>Тип помещения</label>
+                    <BaseSelect v-model="roomType" :options="roomTypeOptions" />
+                    <span v-if="roomTypeError && roomTypeMeta.touched">{{ roomTypeError }}</span>
+                </div>
             </div>
             <div class="mb-10">
 
