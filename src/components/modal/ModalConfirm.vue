@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { VueFinalModal } from 'vue-final-modal'
 import { useForm, useField } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 
 import vButton from '@/components/VButton.vue'
@@ -21,6 +22,11 @@ interface RoomArea {
     max: number
 }
 
+interface RoomType {
+    value: string
+    text: string
+}
+
 interface OrganizationName {
     organizationName: string
 }
@@ -31,6 +37,15 @@ interface Phonenumber {
 
 interface Address {
     address: string
+}
+
+interface RentStartDate {
+    rentStartDate: Date | undefined
+}
+
+
+interface RentEndDate {
+    rentEndDate: Date | undefined
 }
 
 
@@ -45,58 +60,77 @@ const roomTypeOptions = [
 
 // Метод для удаления лишних символов перед валидацией
 const formatPhoneNumberForValidation = (phone: string) => {
-    return phone.replace(/\s|\(|\)|-/g, ''); // Убираем пробелы, скобки и дефисы
+    return phone.replace(/\s|\(|\)|-/g, '') // Убираем пробелы, скобки и дефисы
 }
 
 
-
-
-
-
-
 // Схема валидации
-const validationSchema = yup.object({
-    phoneNumber: yup
-        .string()
-        .transform((value) => formatPhoneNumberForValidation(value))
-        .required('Поле обязательно для заполнения'),
-    roomType: yup.array().required('Необходимо выбрать хотя бы один тип помещения'),
-    roomArea: yup.object().shape({
-        min: yup.number().min(0).max(120).required('Минимальное значение площади обязательно'),
-        max: yup
-            .number()
-            .min(yup.ref('min'), 'Максимальное значение должно быть больше минимального')
-            .max(400, 'Максимальное значение площади — 400')
-            .required('Максимальное значение площади обязательно'),
-    }),
-    organizationName: yup.string().required('Поле обязательно для заполнения'),
-    address: yup.string().required('Поле обязательно для заполнения'),
-})
+const validationSchema = toTypedSchema(
+    yup.object({
+        phoneNumber: yup
+            .string()
+            .transform((value) => formatPhoneNumberForValidation(value))
+            .required('Поле обязательно для заполнения'),
+        roomType: yup
+            .array()
+            .min(1, "Поле обязательно для заполнения")
+            .required('Необходимо выбрать хотя бы один тип помещения'),
+        roomArea: yup
+            .object()
+            .shape({
+                min: yup
+                    .number()
+                    .min(0)
+                    .positive()
+                    .max(120)
+                    .required('Минимальное значение площади обязательно'),
+                max: yup
+                    .number()
+                    .positive()
+                    .min(yup.ref('min'), 'Максимальное значение должно быть больше минимального')
+                    .max(400, 'Максимальное значение площади — 400')
+                    .required('Максимальное значение площади обязательно'),
+            }),
+        organizationName: yup
+            .string()
+            .required('Поле обязательно для заполнения'),
+        address: yup
+            .string()
+            .required('Поле обязательно для заполнения'),
+        rentStartDate: yup
+            .date()
+            .required('Дата начала аренды обязательна'),
+        rentEndDate: yup
+            .date()
+            .min(yup.ref('rentStartDate'), 'Дата окончания аренды должна быть позже даты начала')
+            .required('Дата окончания аренды обязательна'),
+    })
 
-
-
+)
 
 // Используем useForm для управления формой и ее состоянием
-const { handleSubmit, resetForm, errors, meta, values } = useForm({
+const { handleSubmit, resetForm } = useForm({
     validationSchema,
     initialValues: {
-        roomType: [] as string[],
+        roomType: [],
         roomArea: { min: 100, max: 400 },
         organizationName: '',
         phoneNumber: '',
-        address: ''
+        address: '',
+        rentStartDate: undefined,
+        rentEndDate: undefined,
     },
 })
 
 
 // Поля с валидацией
-const { value: roomType, errorMessage: roomTypeError, meta: roomTypeMeta } = useField<string[]>('roomType')
+const { value: roomType, errorMessage: roomTypeError, meta: roomTypeMeta } = useField<RoomType>('roomType')
 const { value: roomArea, errorMessage: roomAreaError, meta: roomAreaMeta } = useField<RoomArea>('roomArea')
 const { value: organizationName, errorMessage: orgError, meta: orgMeta } = useField<OrganizationName>('organizationName')
 const { value: phoneNumber, errorMessage: phoneError, meta: phoneMeta } = useField<Phonenumber>('phoneNumber')
 const { value: address, errorMessage: addressError, meta: addressMeta } = useField<Address>('address')
-
-
+const { value: rentStartDate, errorMessage: rentStartDateError, meta: rentStartDateMeta } = useField<RentStartDate>('rentStartDate')
+const { value: rentEndDate, errorMessage: rentEndDateError, meta: rentEndDateMeta } = useField<RentEndDate>('rentEndDate')
 
 
 
@@ -116,17 +150,16 @@ const formatPhoneNumber = (event: any) => {
 
 // Отправка формы
 const onSubmit = handleSubmit((values) => {
-    console.log('Отправлено:', values);
-    resetForm();  // Сброс формы после отправки
-});
-
+    console.log('Отправлено:', values)
+    resetForm()  // Сброс формы после отправки
+})
 
 </script>
 
 <template>
     <VueFinalModal class="flex justify-center items-center" content-class="flex flex-col bg-white p-4 bg-white "
         @update:model-value="val => emit('update:modelValue', val)">
-        <form>
+        <form @submit="onSubmit">
 
             <div class="mb-10 flex items-center h-10">
                 <h1 v-if="title" class="text-2xl">
@@ -150,7 +183,7 @@ const onSubmit = handleSubmit((values) => {
                 <div
                     class="dropdown bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <label>Тип помещения</label>
-                    <BaseSelect v-model="roomType" :options="roomTypeOptions" />
+                    <BaseSelect v-model="roomType" :options="roomTypeOptions" multiple />
                     <span v-if="roomTypeError && roomTypeMeta.touched">{{ roomTypeError }}</span>
                 </div>
             </div>
@@ -171,14 +204,14 @@ const onSubmit = handleSubmit((values) => {
                 начала аренды</label>
             <div class="grid gap-6 mb-6 md:grid-cols-2">
                 <div class="mb-10">
-
-                    <input type="text"
+                    <span v-if="rentStartDateError && rentStartDateMeta.touched">{{ rentStartDateError }}</span>
+                    <input v-model="rentStartDate" type="date"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="с" required />
                 </div>
                 <div class="mb-10">
-
-                    <input type="text" id="confirm_password"
+                    <span v-if="rentEndDateError && rentEndDateMeta.touched">{{ rentEndDateError }}</span>
+                    <input v-model="rentEndDate" type="date"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="по" required />
                 </div>

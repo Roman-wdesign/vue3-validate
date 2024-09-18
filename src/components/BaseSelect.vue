@@ -3,17 +3,17 @@ import { ref, computed } from 'vue'
 
 
 interface DropdownOption {
-    value: string
-    text: string
+    value: string;
+    text: string;
 }
 
 const props = defineProps<{
-    options: DropdownOption[]
-    modelValue: string[]
+    options: DropdownOption[];
+    modelValue: any;
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string[]): void
+    (e: 'update:modelValue', value: string[]): void;
 }>()
 
 const isOpen = ref(false) // Переменная для открытия/закрытия дропдауна
