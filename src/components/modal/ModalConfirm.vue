@@ -182,7 +182,7 @@ const onSubmit = handleSubmit((values) => {
             <div class="mb-10">
                 <div
                     class="dropdown bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <label>Тип помещения</label>
+                    <slot name="typeOffice"></slot>
                     <BaseSelect v-model="roomType" :options="roomTypeOptions" multiple />
                     <span v-if="roomTypeError && roomTypeMeta.touched">{{ roomTypeError }}</span>
                 </div>
@@ -194,14 +194,11 @@ const onSubmit = handleSubmit((values) => {
                     placeholder="Адрес" required />
             </div>
 
-            <label for="text" class="block mb-4 w-full text-sm font-medium text-gray-900 dark:text-sky-900">Площадь
-                помещения
-                (м2)</label>
+            <slot name="sqOffice"></slot>
             <BaseRange v-model="roomArea" />
             <span v-if="roomAreaError?.min && roomAreaMeta.touched">{{ roomAreaError?.min }}</span>
             <span v-if="roomAreaError?.max && roomAreaMeta.touched">{{ roomAreaError?.max }}</span>
-            <label for="text" class="block mb-4 w-full text-sm font-medium text-gray-900 dark:text-sky-900">Дата
-                начала аренды</label>
+            <slot name="rentStart"></slot>
             <div class="grid gap-6 mb-6 md:grid-cols-2">
                 <div class="mb-10">
                     <span v-if="rentStartDateError && rentStartDateMeta.touched">{{ rentStartDateError }}</span>

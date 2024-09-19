@@ -9,8 +9,9 @@ const { open } = useModal({
         title: 'Заполните заявку, чтобы стать резидентом',
     },
     slots: {
-        org: '<p class="text-gray-900">Наименование организации / ИП</p>',
-        header: '<p class="text-gray-900">Контактный телефон</p>',
+        rentStart: '<label for="text" class="block mb-4 w-full text-sm font-medium text-gray-900 dark:text-sky-900">Дата начала аренды</ label >',
+        sqOffice: '<label for="text" class="block mb-4 w-full text-sm font-medium text-gray-900 dark:text-sky-900">Площадь помещения (м2)</label>',
+        typeOffice: '<label>Тип помещения</label>'
     },
 })
 </script>
